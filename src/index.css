@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+    font-family:Outfit;
+}
+
+
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  /* background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); */
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* For Firefox */
+  appearance: none; /* For other browsers */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* For Chrome and Safari */
+  margin: 0; /* Removes margin */
+}
+
+
+
+.animated {
+    -webkit-animation-duration: 2s;
+    animation-duration: 2s;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+}
+
+.yt-loader {
+    -webkit-animation-name: horizontalProgressBar;
+    animation-name: horizontalProgressBar;
+    -webkit-animation-timing-function: ease;
+    animation-timing-function: ease;
+    background: greenyellow;
+    height: 3px;
+    left: 0;
+    top: 0;
+    width: 0%;
+    z-index: 9999;
+    position:relative;
+}
+
+.yt-loader:after{
+  display: block;
+  position: absolute;
+  content:'';
+  right: 0px;
+  width: 100px;
+  height: 100%;
+
+  opacity: 0.5;
+}
+@keyframes horizontalProgressBar
+{
+    0%   {width: 0%;}
+    20%  {width: 10%;}
+    30%  {width: 15%;}
+    40%  {width: 18%;}
+    50%  {width: 20%;}
+    60%  {width: 22%;}
+    100% {width: 100%;}
+}
