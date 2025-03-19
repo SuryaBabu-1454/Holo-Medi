@@ -7,6 +7,8 @@
   import { MdHistory } from "react-icons/md";
   import Title from "../components/Title";
   import backgroundImage from '../assets/background/c4.jpg'
+  import axios from "axios";
+
 
   const Chatbox = () => {
     const location = useLocation();
@@ -49,48 +51,35 @@
       localStorage.setItem("currentChat", JSON.stringify(messages));
     }, [messages]);
 
-    // Extract the main topic from the user's query
-  const extractTopic = (query) => {
-    const keywords = ["symptoms", "treatment", "causes", "prevention", "diagnosis"];
-    for (const keyword of keywords) {
-      if (query.toLowerCase().includes(keyword)) {
-        return `${keyword} of ${diseaseName}`; // Example: "Treatment for Fever"
-      }
-    }
-    return `Chat about ${diseaseName}`; // Default title
-  };
     // Handle sending a message
-    const handleSendMessage = () => {
-      if (!input.trim()) {
-        setError("Type something related medical queries...");
-        return;
-      }
-      setError("");
-      const userMessage = { sender: "user", text: input };
-      const updatedMessages = [...messages, userMessage];
-      setMessages(updatedMessages);
-      setInput("");
-      setLoading(true);
+  const handleSendMessage = async () => {
+    if (!input.trim()) {
+      setError("Type something related to medical queries...");
+      return;
+    }
+    setError("");
+    const userMessage = { sender: "user", text: input };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setInput("");
+    setLoading(true);
 
-      // Set the chat title based on the first user query
-      if (messages.length === 1) { // First user message
-        const topic = extractTopic(input);
-        setChatTitle(topic); // Set only the topic (no date)
-      }
+    try {
+      const response = await axios.post("http://192.168.0.75:5000/ask", {
+        query: input,
+      });
 
-      setTimeout(() => {
-        setLoading(false);
-        const botResponse = {
-          sender: "bot",
-          text: `You asked about: ${userMessage.text}. More info coming soon!`,
-        };
-        const finalMessages = [...updatedMessages, botResponse];
-        setMessages(finalMessages);
+      const botResponse = { sender: "bot", text: response.data.response };
+      setMessages([...updatedMessages, botResponse]);
+      saveChatHistory([...updatedMessages, botResponse]);
+    } catch (error) {
+      console.error("Error fetching response:", error);
+      setError("Failed to get response. Check backend connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        // Save to history (update existing session)
-        saveChatHistory(finalMessages);
-      }, 1000);
-    };
   // Save chat history
   const saveChatHistory = (messages) => {
     try {

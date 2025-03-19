@@ -6,6 +6,7 @@ import { FaDisease } from "react-icons/fa";
 import Title from "../components/Title";
 import { useNavigate, useLocation } from "react-router-dom";
 import backgroundImage from '../assets/background/s2.jpg'
+import axios from "axios"
 
 const SkinDisease = () => {
   const [image, setImage] = useState(null);
@@ -18,13 +19,15 @@ const SkinDisease = () => {
   const [stream, setStream] = useState(null);
   const navigate = useNavigate();
 
-  const handleImageUpload = async (event) => {
+  const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setLoading(true);
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
-      await analyzeDisease(imageUrl);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImage(e.target.result);
+        analyzeDisease(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -57,12 +60,38 @@ const SkinDisease = () => {
 
   const analyzeDisease = async (imageUrl) => {
     setLoading(true);
-    setTimeout(() => {
-      setDiseaseName("Eczema");
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+
+      const formData = new FormData();
+      formData.append("file", blob, "image.png");
+
+      const result = await axios.post("http://192.168.0.75:5000/predict", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 10000,
+      });
+
+      if (result.status !== 200) {
+        alert("Prediction failed");
+        setLoading(false);
+        return;
+      }
+
+      const data = result.data;
+      console.log(data);
+
+      setDiseaseName(data.predicted_class || "Unknown Disease");
+      console.log(data.predicted_class || "Unknown Disease");
+
       setResultImage(imageUrl);
       setImage(null);
+    } catch (error) {
+      console.error("Error during prediction:", error);
+      alert("Error during prediction. Please try again.");
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   const handleKnowMoreButton = () => {
