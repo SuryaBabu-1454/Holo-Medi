@@ -1,11 +1,9 @@
-// import React from "react";
+// import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { FaTrash, FaEdit, FaPlus } from "react-icons/fa";
 
 // const HistoryPage = () => {
 //   const navigate = useNavigate();
-
-//   // Load chat history from localStorage
 //   const [history, setHistory] = React.useState(() => {
 //     try {
 //       return JSON.parse(localStorage.getItem("chatHistory")) || [];
@@ -15,43 +13,28 @@
 //     }
 //   });
 
-//   // Handle deleting a chat
-//   const handleDelete = (index) => {
-//     const confirmDelete = window.confirm("Are you sure you want to delete this chat?");
-//     if (confirmDelete) {
-//       try {
-//         const updatedHistory = history.filter((_, i) => i !== index);
-//         setHistory(updatedHistory);
-//         localStorage.setItem("chatHistory", JSON.stringify(updatedHistory));
-//       } catch (error) {
-//         console.error("Error deleting chat:", error);
-//         alert("Failed to delete chat. Please try again.");
-//       }
-//     }
+//   const [modal, setModal] = useState({ open: false, type: "", index: null });
+//   const [editTitle, setEditTitle] = useState("");
+
+//   const handleDelete = () => {
+//     const updatedHistory = history.filter((_, i) => i !== modal.index);
+//     setHistory(updatedHistory);
+//     localStorage.setItem("chatHistory", JSON.stringify(updatedHistory));
+//     setModal({ open: false, type: "", index: null });
 //   };
 
-//   // Handle editing a chat title
-//   const handleEdit = (index) => {
-//     const editedMessage = prompt("Edit the chat title:", history[index].title);
-//     if (editedMessage !== null) {
-//       try {
-//         const updatedHistory = [...history];
-//         updatedHistory[index].title = editedMessage;
-//         setHistory(updatedHistory);
-//         localStorage.setItem("chatHistory", JSON.stringify(updatedHistory));
-//       } catch (error) {
-//         console.error("Error editing chat title:", error);
-//         alert("Failed to edit chat title. Please try again.");
-//       }
-//     }
+//   const handleEdit = () => {
+//     const updatedHistory = [...history];
+//     updatedHistory[modal.index].title = editTitle;
+//     setHistory(updatedHistory);
+//     localStorage.setItem("chatHistory", JSON.stringify(updatedHistory));
+//     setModal({ open: false, type: "", index: null });
 //   };
 
-//   // Handle selecting a chat to continue
 //   const handleSelectChat = (chatId) => {
 //     navigate("/chatbot", { state: { chatId, continueSession: true } });
 //   };
 
-//   // Handle starting a new chat
 //   const handleNewChat = () => {
 //     navigate("/chatbot", { state: { newChat: true } });
 //   };
@@ -62,13 +45,13 @@
 //       <div className="flex mb-4 gap-2">
 //         <button
 //           onClick={() => navigate(-1)}
-//           className="px-4 py-2 bg-blue-500 text-white rounded"
+//           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
 //         >
 //           Go Back
 //         </button>
 //         <button
 //           onClick={handleNewChat}
-//           className="px-4 py-2 bg-green-500 text-white rounded flex items-center gap-1"
+//           className="px-4 py-2 bg-green-500 text-white rounded flex items-center gap-1 hover:bg-green-700"
 //         >
 //           <FaPlus /> New Chat
 //         </button>
@@ -84,33 +67,94 @@
 //               onClick={() => handleSelectChat(item.id)}
 //             >
 //               <div>
-//                 <p className="font-semibold">{
-//                   item.title ||
-//                   (item.messages?.find((msg) => msg.sender === "user")?.text) ||
-//                   "Untitled Chat"
-//                 }</p>
+//                 <p className="font-semibold">
+//                   {item.messages?.[1]?.text || "Untitled Chat"}
+//                 </p>
 //                 <small className="text-gray-500">{item.date}</small>
 //               </div>
 //               <div className="flex gap-2">
-//                 <FaEdit
-//                   className="text-blue-500 cursor-pointer"
+//                 <div
 //                   onClick={(e) => {
 //                     e.stopPropagation();
-//                     handleEdit(index);
+//                     setEditTitle(item.title || "");
+//                     setModal({ open: true, type: "edit", index });
 //                   }}
-//                 />
-//                 <FaTrash
-//                   className="text-red-500 cursor-pointer"
+//                   className="flex gap-2 items-center bg-blue-300 px-3 py-1 rounded-sm  hover:bg-blue-200"
+//                 >
+//                   Edit
+//                   <FaEdit className="text-blue-700 cursor-pointer" />
+//                 </div>
+//                 <div
 //                   onClick={(e) => {
 //                     e.stopPropagation();
-//                     handleDelete(index);
+//                     setModal({ open: true, type: "delete", index });
 //                   }}
-//                 />
+//                   className="flex gap-2 items-center   bg-red-300 px-3 py-1 rounded-sm  hover:bg-red-200"
+//                 >
+//                   Delete
+//                   <FaTrash className="text-red-700 cursor-pointer" />
+//                 </div>
 //               </div>
 //             </div>
 //           ))
 //         )}
 //       </div>
+
+//       {modal.open && (
+//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+//           <div className="bg-white p-5 rounded-lg shadow-lg max-w-sm w-full">
+//             {modal.type === "edit" ? (
+//               <>
+//                 <h2 className="text-lg font-semibold mb-2">Edit Chat Title</h2>
+//                 <input
+//                   type="text"
+//                   value={editTitle}
+//                   onChange={(e) => setEditTitle(e.target.value)}
+//                   className="w-full border p-2 rounded mb-4"
+//                 />
+//                 <div className="flex justify-end gap-2">
+//                   <button
+//                     onClick={() =>
+//                       setModal({ open: false, type: "", index: null })
+//                     }
+//                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-200"
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     onClick={handleEdit}
+//                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 "
+//                   >
+//                     Save
+//                   </button>
+//                 </div>
+//               </>
+//             ) : (
+//               <>
+//                 <h2 className="text-lg font-semibold mb-4">
+//                   Are you sure you want to delete this chat?
+//                 </h2>
+//                 <div className="flex justify-end gap-2">
+//                   <button
+//                     onClick={() =>
+//                       setModal({ open: false, type: "", index: null })
+//                     }
+//                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-200"
+//                   >
+//                     Cancel
+//                   </button>
+//                   <button
+//                     onClick={handleDelete}
+//                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
+//                   >
+//                     Delete
+//                   </button>
+//                 </div>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       )}
 //     </div>
 //   );
 // };

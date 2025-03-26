@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FaArrowLeft, FaCamera } from "react-icons/fa";
+import { FaArrowLeft, FaCamera, FaTimes } from "react-icons/fa";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { PropagateLoader } from "react-spinners";
 import { FaDisease } from "react-icons/fa";
@@ -95,7 +95,17 @@ const SkinDisease = () => {
   };
 
   const handleKnowMoreButton = () => {
-    navigate('/chatbot', { state: { diseaseName } });
+
+     // Generate an automatic question about the disease
+  const autoQuestion = `Explain about ${diseaseName}`;
+    navigate('/chatbot', { state: { diseaseName, autoQuestion } });
+  };
+  const resetUploadBox = () => {
+    setImage(null);
+    setShowCamera(false);
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
   };
 
   return (
@@ -124,6 +134,14 @@ const SkinDisease = () => {
           <p className="mb-3 text-white text-center">Supports JPG, PNG, and more.</p>
           <div className="w-full max-w-md h-60 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center rounded-lg cursor-pointer hover:bg-black/10 group relative overflow-hidden"
             onClick={() => document.getElementById("fileInput").click()}>
+                {image && (
+                            <button
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-800 transition z-10"
+                              onClick={(e) => { e.stopPropagation(); resetUploadBox(); }}
+                            >
+                              <FaTimes size={16} />
+                            </button>
+                          )}
             {showCamera ? (
               <>
                 <video ref={videoRef} className="w-full h-full object-cover" />

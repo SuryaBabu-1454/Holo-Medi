@@ -4,7 +4,7 @@ import '../index.css'
 const ProgressBar = () => {
   return (
 
-      <div class="animated yt-loader"></div>
+      <div className="animated yt-loader"></div>
   )
 }
 

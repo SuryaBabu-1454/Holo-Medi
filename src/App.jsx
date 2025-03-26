@@ -12,11 +12,14 @@ import Chatbox from "./pages/Chatbox";
 import ViewBookmarks from "./components/ViewBookmarks";
 import HistoryPage from "./components/HistoryPage";
 import EyeDetection from "./pages/EyeDetection";
+import MediFinder from "./pages/MediFinder";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   return (
     <Router>
       <div className="flex h-screen w-full">
+        <ToastContainer />
         {/* Sidebar (Visible on larger screens, hidden on small screens) */}
         <div className="hidden md:block md:w-56 text-white h-full">
           <Sidebar />
@@ -34,6 +37,7 @@ const App = () => {
             <Route path="/bookmarks" element={<ViewBookmarks />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/eye-detection" element={<EyeDetection />} />
+            <Route path="/medi-finder" element={<MediFinder />} />
           </Routes>
         </div>
 

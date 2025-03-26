@@ -1,7 +1,7 @@
 
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaStethoscope, FaXRay, FaPills, FaCalculator, FaEllipsisV ,FaHome} from "react-icons/fa";
+import { FaStethoscope, FaXRay, FaPills, FaCalculator, FaEllipsisV ,FaHome, FaRegLightbulb} from "react-icons/fa";
 import { TbMessageChatbotFilled } from "react-icons/tb";
 import { TbEyeSearch } from "react-icons/tb";
 
@@ -84,6 +84,15 @@ const Sidebar = () => {
       >
         <TbMessageChatbotFilled size={28} />
         <span className="ml-2">Chatbot</span>
+      </NavLink>
+      <NavLink 
+        to="/medi-finder" 
+        className={({ isActive }) => 
+          `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
+        }
+      >
+        <FaRegLightbulb  size={28} />
+        <span className="ml-2">Medi-Finder</span>
       </NavLink>
     </div>
   );
