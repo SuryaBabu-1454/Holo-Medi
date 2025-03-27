@@ -35,7 +35,7 @@ const Home = () => {
         </p>
 
         {/* Button */}
-        <button onClick={handleNavigate} className="border mx-auto sm:mx-auto bg-cyan-600 text-white rounded-md text-center py-2 px-4 xs:mx-auto sm:py-3 sm:px-6 my-5 sm:mx-auto md:mx-0 hover:bg-transparent hover:border-white transition-all">
+        <button onClick={handleNavigate} className="border mx-auto sm:mx-auto bg-cyan-600 text-white rounded-md text-center py-2 px-4 xs:mx-auto sm:py-3 sm:px-6 my-5  md:mx-0 hover:bg-transparent hover:border-white transition-all">
           Start Analysis
         </button>
       </div>

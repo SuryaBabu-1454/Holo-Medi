@@ -19,6 +19,11 @@ const SkinDisease = () => {
   const [stream, setStream] = useState(null);
   const navigate = useNavigate();
 
+  console.log("VITE_BACKEND_URL:", import.meta.env.VITE_BACKEND_URL);
+  
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -67,10 +72,12 @@ const SkinDisease = () => {
       const formData = new FormData();
       formData.append("file", blob, "image.png");
 
-      const result = await axios.post("http://192.168.0.75:5000/predict", formData, {
+      const result = await axios.post(`${backendUrl}/predict`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 10000,
+
       });
+      console.log("result:",result);
+      
 
       if (result.status !== 200) {
         alert("Prediction failed");

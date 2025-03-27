@@ -11,6 +11,11 @@ const XRayDetection = ({ name }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tableData, setTableData] = useState(null);
 
+
+  
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -23,7 +28,7 @@ const XRayDetection = ({ name }) => {
       formData.append("llm", "gpt-3.5-turbo");
 
       try {
-        const response = await axios.post("http://192.168.0.140:4000/xray", formData, {
+        const response = await axios.post(`${backendUrl}/xray`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 

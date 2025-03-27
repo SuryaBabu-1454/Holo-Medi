@@ -13,6 +13,11 @@ const EyeDetection = () => {
   const [loading, setLoading] = useState(false);
   const [showResult, setShowResult] = useState(false);
 
+
+  
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -28,9 +33,9 @@ const EyeDetection = () => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post("http://192.168.0.75:5000/eye", formData, {
+      const response = await axios.post(`${backendUrl}/eye`, formData, {
+      // const response = await axios.post(`${backendUrl}/eye`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 10000,
       });
 
       const { prediction, confidence } = response.data;

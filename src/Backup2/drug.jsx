@@ -6,7 +6,7 @@
 // import ProgressBar from '../components/ProgressBar';
 // import backgroundImage from '../assets/background/d4.jpg';
 
-// const API_BASE = 'http://192.168.0.75:5000';
+// const API_BASE = 'http://192.168.1.155:5000';
 
 // const DrugDetails = () => {
 //   const location = useLocation();

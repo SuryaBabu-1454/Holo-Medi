@@ -22,10 +22,16 @@ const Chatbox = () => {
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const chatContainerRef = useRef(null);
   const [sessionId, setSessionId] = useState(chatId || Date.now().toString());
   const [chatTitle, setChatTitle] = useState("");
   const autoQuestionProcessed = useRef(false);
+
+
+
+  //Backend Port 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Handle auto-question when component mounts
   useEffect(() => {
@@ -42,7 +48,7 @@ const Chatbox = () => {
   const handleAutoResponse = async (question, messageHistory) => {
     setLoading(true);
     try {
-      const response = await axios.post("http://192.168.0.75:5000/ask", {
+      const response = await axios.post(`${backendUrl}/ask`, {
         query: question,
       }, {
        
@@ -102,14 +108,16 @@ const Chatbox = () => {
     }
   }, [messages]);
 
-  // Handle sending a message
   const handleSendMessage = async () => {
     if (!input.trim()) {
-      setError("Type something related to medical queries...");
-      return;
+        const errorMessage = {
+            sender: "bot",
+            text: "Type something related to medical queries  "
+        };
+        setMessages([...messages, errorMessage]);
+        return;
     }
-    
-    setError("");
+
     const userMessage = { sender: "user", text: input };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
@@ -117,37 +125,61 @@ const Chatbox = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://192.168.0.75:5000/ask", {
-        query: input,
-      }, {
-  
-        headers: {
-          'Content-Type': 'application/json',
+        const response = await axios.post(`${backendUrl}/ask`, {
+            query: input,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.data?.response) {
+            throw new Error("Empty response from server");
         }
-      });
 
-      if (!response.data?.response) {
-        throw new Error("Empty response from server");
-      }
-
-      const botResponse = { 
-        sender: "bot", 
-        text: response.data.response 
-      };
-      const newMessages = [...updatedMessages, botResponse];
-      setMessages(newMessages);
-      saveChatHistory(newMessages);
+        const botResponse = { sender: "bot", text: response.data.response };
+        setMessages([...updatedMessages, botResponse]);
+        saveChatHistory([...updatedMessages, botResponse]);
     } catch (error) {
-      console.error("Error fetching response:", error);
-      const errorMessage = {
-        sender: "bot",
-        text: "Sorry, I couldn't get a response. Please check your connection and try again."
-      };
-      setMessages([...updatedMessages, errorMessage]);
+        console.error("Error fetching response:", error);
+        const errorMessage = {
+            sender: "bot",
+            text: "Sorry, I couldn't get a response. Please check your connection and try again."
+        };
+        setMessages([...updatedMessages, errorMessage]);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+
+const handleVoiceRecognition = async () => {
+  setIsListening(true);
+  setInput("Listening...");
+
+  try {
+    const response = await axios.get(`${backendUrl}/voice`);
+
+    console.log(response.data); 
+
+    setInput(response.data.text || "Couldn't recognize voice"); 
+  } catch (error) {
+    console.error("Error fetching speech data:", error);
+
+    if (error.response) {
+      setInput(`Error: ${error.response.status} - ${error.response.data}`);
+    } else if (error.request) {
+      setInput("Server not responding. Try again.");
+    } else {
+      // Other errors (wrong URL, etc.)
+      setInput("Couldn't recognize speech. Try again.");
+    }
+  } finally {
+    setIsListening(false);
+  }
+};
+
+
 
   // Save chat history
   const saveChatHistory = (messages) => {
@@ -210,7 +242,7 @@ const Chatbox = () => {
   return (
     <div className="w-full min-h-screen bg-cover bg-center px-5 py-3 bg-gray-100 relative pb-24" style={{backgroundImage:`url(${backgroundImage})`}}>
       <Title name={'Chatbot'} />
-      <div className="flex flex-col mt-4 flex-grow bg-white w-full h-[450px] max-w-[450px] mx-auto p-3 rounded-md shadow-lg">
+      <div className="flex flex-col mt-4 flex-grow bg-white w-full h-[450px] max-w-[550px] mx-auto p-3 rounded-md shadow-lg">
         <div className="flex justify-between items-center">
           <h3 className="mb-1 ms-2 text-start text-lg font-semibold">
             Chat about {diseaseName}
@@ -264,7 +296,7 @@ const Chatbox = () => {
               <div className="flex items-start space-x-2">
                 <FaRobot className="text-white bg-black rounded-full p-1" size={24} />
                 <div className="rounded-md max-w-[70%] text-black">
-                  <BeatLoader size={8} color="#3b82f6" />
+                  <BeatLoader size={8} color="gray" />
                 </div>
               </div>
             )}
@@ -275,9 +307,9 @@ const Chatbox = () => {
           <div className="flex items-center border px-3 py-2 bg-white rounded-md mt-2">
             <input
               type="text"
-              placeholder={error ? error : "Ask about something medical..."}
-              className={`border-none p-2 bg-white focus:outline-none focus:ring-0 w-full ${
-                error ? "placeholder-red-500" : ""
+              placeholder={error || "Ask about something medical..."}
+              className={`border-none p-2 bg-white focus:outline-none focus:ring-0 w-full placeholder-gray-500 ${
+                error ? "text-red-500 placeholder-red-500" : "text-black"
               }`}
               value={input}
               onChange={(e) => {
@@ -297,11 +329,12 @@ const Chatbox = () => {
               >
                 <VscSend size={25} />
               </button>
-              <button
+              <button  onClick={handleVoiceRecognition}
                 className="hover:text-blue-500 transition-colors cursor-pointer"
                 aria-label="Use microphone"
+                disabled={isListening} 
               >
-                <RiMicLine size={25} />
+                <RiMicLine size={25}  className={isListening ? "animate-pulse text-blue-500" : ""}/>
               </button>
             </div>
           </div>

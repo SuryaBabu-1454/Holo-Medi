@@ -6,7 +6,7 @@ import Title from '../components/Title';
 import ProgressBar from '../components/ProgressBar';
 import backgroundImage from '../assets/background/d4.jpg';
 
-const API_BASE = 'http://192.168.0.75:5000';
+const API_BASE = 'http://192.168.1.155:5000';
 
 const DrugDetails = () => {
   const location = useLocation();
@@ -23,8 +23,6 @@ const DrugDetails = () => {
     return JSON.parse(localStorage.getItem('bookmarks')) || [];
   });
   
-
-  // ==================== BACKEND INTEGRATION ====================
   // 1. Fetch bookmarks from backend
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -287,7 +285,7 @@ const DrugDetails = () => {
         <div className="w-full max-w-3xl px-4 text-center text-white mt-8">
           <h2 className="text-xl font-bold text-cyan-400 mb-2 ">{formatDrugName(drugInfo.name)}</h2>
           <p className="text-xl md:text-base text-start leading-relaxed mb-10">{drugInfo.description}</p>
-          <a onClick={handleViewBookmarks} href="" className='text-blue-400 border-b-2 rounded-md'>View all bookmarks</a>
+          <a onClick={handleViewBookmarks} href="" className='text-blue-400  underline'>View all bookmarks</a>
           <div className="flex justify-center sm:justify-end mt-5 gap-2">
             <button onClick={handleBookmark} className="w-32 h-10 text-white border rounded-md hover:border hover:rounded-md hover:bg-black hover:text-white flex items-center justify-center gap-2" aria-label="Bookmark drug">
               <FaBookmark /> Bookmark

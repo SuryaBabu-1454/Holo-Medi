@@ -10,7 +10,7 @@ import { TbEyeSearch } from "react-icons/tb";
 
 const Sidebar = () => {
   return (
-    <div className="bg-cyan-700 text-white hidden md:flex flex-col w-56 p-4 h-screen space-y-4 fixed">
+    <div className="bg-cyan-700 text-white hidden md:flex flex-col w-56 p-4 h-screen space-y-2 fixed">
       
       {/* Title Section */}
       <div className="flex justify-between items-center mb-6">
@@ -27,6 +27,15 @@ const Sidebar = () => {
       >
         <FaHome size={28} />
         <span className="ml-2">Home</span>
+      </NavLink>
+      <NavLink 
+        to="/chatbot" 
+        className={({ isActive }) => 
+          `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
+        }
+      >
+        <TbMessageChatbotFilled size={28} />
+        <span className="ml-2">Chatbot</span>
       </NavLink>
       <NavLink 
         to="/skin-disease" 
@@ -66,6 +75,15 @@ const Sidebar = () => {
         <FaPills size={28} />
         <span className="ml-2">Drug Details</span>
       </NavLink>
+      <NavLink 
+        to="/medi-finder" 
+        className={({ isActive }) => 
+          `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
+        }
+      >
+        <FaRegLightbulb  size={28} />
+        <span className="ml-2">Medi-Finder</span>
+      </NavLink>
 
       <NavLink 
         to="/bmi-calculator" 
@@ -76,24 +94,8 @@ const Sidebar = () => {
         <FaCalculator size={28} />
         <span className="ml-2">BMI Calculator</span>
       </NavLink>
-      <NavLink 
-        to="/chatbot" 
-        className={({ isActive }) => 
-          `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
-        }
-      >
-        <TbMessageChatbotFilled size={28} />
-        <span className="ml-2">Chatbot</span>
-      </NavLink>
-      <NavLink 
-        to="/medi-finder" 
-        className={({ isActive }) => 
-          `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
-        }
-      >
-        <FaRegLightbulb  size={28} />
-        <span className="ml-2">Medi-Finder</span>
-      </NavLink>
+ 
+     
     </div>
   );
 };

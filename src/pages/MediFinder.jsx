@@ -18,7 +18,9 @@ const MediFinder = () => {
   const [hasSearched, setHasSearched] = useState(false);
 
   // Backend API base URL
-  const API_BASE_URL = 'http://192.168.0.75:5000';
+
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 
   // Load search history from localStorage
   useEffect(() => {
@@ -41,10 +43,10 @@ const MediFinder = () => {
     try {
       // Make parallel API calls for books and videos
       const [booksResponse, videosResponse] = await Promise.all([
-        axios.post(`${API_BASE_URL}/suggest`, { genre: searchQuery }, {
+        axios.post(`${backendUrl}/suggest`, { genre: searchQuery }, {
           headers: { 'Content-Type': 'application/json' }
         }),
-        axios.post(`${API_BASE_URL}/video_search`, { query: searchQuery }, {
+        axios.post(`${backendUrl}/video_search`, { query: searchQuery }, {
           headers: { 'Content-Type': 'application/json' }
         })
       ]);
@@ -120,7 +122,7 @@ const MediFinder = () => {
 
                        const renderContent = () => {
                         if (loading) {
-                          return [...Array(6)].map((_, index) => (
+                          return [...Array(9)].map((_, index) => (
                             <motion.div
                               key={`loader-${index}`}
                               initial={{ opacity: 0.5 }}
@@ -268,7 +270,7 @@ const MediFinder = () => {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Search medical books or videos..."
-            className="flex-1 border border-gray-300 p-4 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="flex-1 border border-gray-300 p-4 rounded-l-lg focus:outline-none "
           />
           <button
             onClick={hasSearched ? handleClear : handleSearch}

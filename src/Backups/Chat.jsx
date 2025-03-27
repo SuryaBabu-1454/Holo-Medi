@@ -6,176 +6,265 @@
 // import { useLocation, useNavigate } from "react-router-dom";
 // import { MdHistory } from "react-icons/md";
 // import Title from "../components/Title";
+// import backgroundImage from '../assets/background/c4.jpg'
+// import axios from "axios";
+
 
 // const Chatbox = () => {
 //   const location = useLocation();
 //   const navigate = useNavigate();
 //   const diseaseName = location.state?.diseaseName || "something Medical";
-//   const chatId = location.state?.chatId; // Unique ID for the chat session
-//   const continueSession = location.state?.continueSession; // Flag to continue old chat
+//   const chatId = location.state?.chatId;
+//   const continueSession = location.state?.continueSession;
+//   const autoQuestion = location.state?.autoQuestion;
 
 //   const [messages, setMessages] = useState([{ sender: "bot", text: "Hi! How can I assist you today?" }]);
 //   const [input, setInput] = useState("");
 //   const [error, setError] = useState("");
 //   const [loading, setLoading] = useState(false);
+//   const [isListening, setIsListening] = useState(false);
 //   const chatContainerRef = useRef(null);
-//   const [sessionId, setSessionId] = useState(chatId || Date.now().toString()); // Unique ID for the current session
-//   const [chatTitle, setChatTitle] = useState(""); // Dynamic title for the chat session
+//   const [sessionId, setSessionId] = useState(chatId || Date.now().toString());
+//   const [chatTitle, setChatTitle] = useState("");
+//   const autoQuestionProcessed = useRef(false);
+
+
+
+//   //Backend Port 
+//   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+//   // Handle auto-question when component mounts
+//   useEffect(() => {
+//     if (autoQuestion && !autoQuestionProcessed.current && messages.length === 1) {
+//       autoQuestionProcessed.current = true;
+//       const userMessage = { sender: "user", text: autoQuestion };
+//       const updatedMessages = [...messages, userMessage];
+//       setMessages(updatedMessages);
+//       handleAutoResponse(autoQuestion, updatedMessages);
+//     }
+//   }, [autoQuestion]);
+
+//   // Handle auto-response
+//   const handleAutoResponse = async (question, messageHistory) => {
+//     setLoading(true);
+//     try {
+//       const response = await axios.post(`${backendUrl}/ask`, {
+//         query: question,
+//       }, {
+       
+//         headers: {
+//           'Content-Type': 'application/json',
+//         }
+//       });
+
+//       if (!response.data?.response) {
+//         throw new Error("Empty response from server");
+//       }
+
+//       const botResponse = { 
+//         sender: "bot", 
+//         text: response.data.response || "I couldn't generate a response. Please try again." 
+//       };
+//       const newMessages = [...messageHistory, botResponse];
+//       setMessages(newMessages);
+//       saveChatHistory(newMessages);
+//     } catch (error) {
+//       console.error("Error fetching auto-response:", error);
+//       const errorMessage = {
+//         sender: "bot",
+//         text: "Sorry, I encountered an error processing your request. Please try asking again."
+//       };
+//       setMessages([...messageHistory, errorMessage]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
 //   // Load old chat if continuing a session
 //   useEffect(() => {
 //     if (continueSession && chatId) {
-//       const chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
-//       const selectedChat = chatHistory.find((chat) => chat.id === chatId);
-//       if (selectedChat) {
-//         setMessages(selectedChat.messages);
-//         setSessionId(selectedChat.id); // Use the existing session ID
-//         setChatTitle(selectedChat.title); // Set the existing title
+//       try {
+//         const chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+//         const selectedChat = chatHistory.find((chat) => chat.id === chatId);
+//         if (selectedChat) {
+//           setMessages(selectedChat.messages);
+//           setSessionId(selectedChat.id);
+//           setChatTitle(selectedChat.title);
+//         }
+//       } catch (error) {
+//         console.error("Error loading chat history:", error);
+//         setError("Failed to load chat history");
 //       }
 //     }
 //   }, [chatId, continueSession]);
 
 //   // Scroll to bottom when messages change
 //   useEffect(() => {
-//     chatContainerRef.current?.scrollTo({
-//       top: chatContainerRef.current.scrollHeight,
-//       behavior: "smooth",
-//     });
-//   }, [messages]);
-
-//   // Save current chat to localStorage
-//   useEffect(() => {
-//     localStorage.setItem("currentChat", JSON.stringify(messages));
-//   }, [messages]);
-
-//   // Extract the main topic from the user's query
-// const extractTopic = (query) => {
-//   const keywords = ["symptoms", "treatment", "causes", "prevention", "diagnosis"];
-//   for (const keyword of keywords) {
-//     if (query.toLowerCase().includes(keyword)) {
-//       return `${keyword} of ${diseaseName}`; // Example: "Treatment for Fever"
+//     if (chatContainerRef.current) {
+//       chatContainerRef.current.scrollTo({
+//         top: chatContainerRef.current.scrollHeight,
+//         behavior: "smooth",
+//       });
 //     }
-//   }
-//   return `Chat about ${diseaseName}`; // Default title
-// };
-//   // Handle sending a message
-//   const handleSendMessage = () => {
+//   }, [messages]);
+
+//   const handleSendMessage = async () => {
 //     if (!input.trim()) {
-//       setError("Type something related medical queries...");
-//       return;
+//         const errorMessage = {
+//             sender: "bot",
+//             text: "Type something related to medical queries  "
+//         };
+//         setMessages([...messages, errorMessage]);
+//         return;
 //     }
-//     setError("");
+
 //     const userMessage = { sender: "user", text: input };
 //     const updatedMessages = [...messages, userMessage];
 //     setMessages(updatedMessages);
 //     setInput("");
 //     setLoading(true);
 
-//     // Set the chat title based on the first user query
-//     if (messages.length === 1) { // First user message
-//       const topic = extractTopic(input);
-//       setChatTitle(topic); // Set only the topic (no date)
+//     try {
+//         const response = await axios.post(`${backendUrl}/ask`, {
+//             query: input,
+//         }, {
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             }
+//         });
+
+//         if (!response.data?.response) {
+//             throw new Error("Empty response from server");
+//         }
+
+//         const botResponse = { sender: "bot", text: response.data.response };
+//         setMessages([...updatedMessages, botResponse]);
+//         saveChatHistory([...updatedMessages, botResponse]);
+//     } catch (error) {
+//         console.error("Error fetching response:", error);
+//         const errorMessage = {
+//             sender: "bot",
+//             text: "Sorry, I couldn't get a response. Please check your connection and try again."
+//         };
+//         setMessages([...updatedMessages, errorMessage]);
+//     } finally {
+//         setLoading(false);
 //     }
+// };
 
-//     setTimeout(() => {
-//       setLoading(false);
-//       const botResponse = {
-//         sender: "bot",
-//         text: `You asked about: ${userMessage.text}. More info coming soon!`,
-//       };
-//       const finalMessages = [...updatedMessages, botResponse];
-//       setMessages(finalMessages);
 
-//       // Save to history (update existing session)
-//       saveChatHistory(finalMessages);
-//     }, 1000);
-//   };
-// // Save chat history
-// const saveChatHistory = (messages) => {
+// const handleVoiceRecognition = async () => {
+//   setIsListening(true);
+//   setInput("Listening...");
+
 //   try {
-//     const chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
-//     const timestamp = new Date().toLocaleString();
+//     const response = await axios.get(`${backendUrl}/voice`);
 
-//     // Check if the session already exists in history
-//     const existingChatIndex = chatHistory.findIndex((chat) => chat.id === sessionId);
+//     console.log(response.data); 
 
-//     if (existingChatIndex > -1) {
-//       // Update existing chat
-//       chatHistory[existingChatIndex].messages = messages;
-//       chatHistory[existingChatIndex].date = timestamp; // Update timestamp
-//     } else {
-//       // Create new chat
-//       const newChat = {
-//         id: sessionId, // Use the current session ID
-//         title: chatTitle, // Use the dynamic title
-//         messages,
-//         date: timestamp,
-//       };
-//       chatHistory.unshift(newChat);
-//     }
-
-//     localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+//     setInput(response.data.text || "Couldn't recognize voice"); 
 //   } catch (error) {
-//     console.error("Error saving chat history:", error);
-//     setError("Failed to save chat history. Please try again.");
+//     console.error("Error fetching speech data:", error);
+
+//     if (error.response) {
+//       setInput(`Error: ${error.response.status} - ${error.response.data}`);
+//     } else if (error.request) {
+//       setInput("Server not responding. Try again.");
+//     } else {
+//       // Other errors (wrong URL, etc.)
+//       setInput("Couldn't recognize speech. Try again.");
+//     }
+//   } finally {
+//     setIsListening(false);
 //   }
 // };
+
+
+
+//   // Save chat history
+//   const saveChatHistory = (messages) => {
+//     try {
+//       const chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
+//       const timestamp = new Date().toLocaleString();
+//       const title = chatTitle || messages.find(m => m.sender === "user")?.text || "New Chat";
+
+//       const existingChatIndex = chatHistory.findIndex((chat) => chat.id === sessionId);
+
+//       if (existingChatIndex > -1) {
+//         chatHistory[existingChatIndex] = {
+//           id: sessionId,
+//           title,
+//           messages,
+//           date: timestamp
+//         };
+//       } else {
+//         chatHistory.unshift({
+//           id: sessionId,
+//           title,
+//           messages,
+//           date: timestamp
+//         });
+//       }
+
+//       localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+//     } catch (error) {
+//       console.error("Error saving chat history:", error);
+//     }
+//   };
+
 //   // Handle new chat
 //   const handleNewChat = () => {
 //     try {
-//       // Save current session to history before resetting
 //       saveChatHistory(messages);
-
-//       // Reset chatbox
 //       localStorage.removeItem("currentChat");
 //       setMessages([{ sender: "bot", text: "Hi! How can I assist you today?" }]);
-//       setSessionId(Date.now().toString()); // Generate a new session ID
-//       setChatTitle(""); // Reset the title
+//       setSessionId(Date.now().toString());
+//       setChatTitle("");
+//       autoQuestionProcessed.current = false;
 //       navigate("/chatbot", { state: { newChat: true } });
 //     } catch (error) {
 //       console.error("Error starting new chat:", error);
-//       setError("Failed to start a new chat. Please try again.");
+//       setError("Failed to start a new chat");
 //     }
 //   };
 
 //   // Handle history navigation
 //   const handleHistory = () => {
 //     try {
-//       // Save current session to history before navigating
 //       saveChatHistory(messages);
 //       navigate("/history");
 //     } catch (error) {
 //       console.error("Error navigating to history:", error);
-//       setError("Failed to navigate to history. Please try again.");
+//       setError("Failed to navigate to history");
 //     }
 //   };
 
 //   return (
-//     <div className="w-full min-h-screen px-5 py-3 bg-gray-100 relative pb-24">
+//     <div className="w-full min-h-screen bg-cover bg-center px-5 py-3 bg-gray-100 relative pb-24" style={{backgroundImage:`url(${backgroundImage})`}}>
 //       <Title name={'Chatbot'} />
-//       {/* Chat Window */}
-//       <div className="flex flex-col mt-4 flex-grow bg-white w-full h-[450px] max-w-[450px] mx-auto p-3 rounded-md shadow-md">
+//       <div className="flex flex-col mt-4 flex-grow bg-white w-full h-[450px] max-w-[550px] mx-auto p-3 rounded-md shadow-lg">
 //         <div className="flex justify-between items-center">
 //           <h3 className="mb-1 ms-2 text-start text-lg font-semibold">
 //             Chat about {diseaseName}
 //           </h3>
 //           <div className="flex gap-3">
-//             <p
+//             <button
 //               onClick={handleNewChat}
 //               className="text-lg rounded-full cursor-pointer hover:scale-110"
+//               aria-label="New chat"
 //             >
 //               <RiChatNewLine />
-//             </p>
-//             <p
+//             </button>
+//             <button
 //               onClick={handleHistory}
 //               className="text-xl rounded-full cursor-pointer hover:scale-110"
+//               aria-label="Chat history"
 //             >
 //               <MdHistory />
-//             </p>
+//             </button>
 //           </div>
 //         </div>
 
-//         {/* Chat Messages */}
 //         <div
 //           ref={chatContainerRef}
 //           className="relative flex-grow overflow-auto bg-gray-50 rounded-md p-3"
@@ -206,22 +295,21 @@
 //             {loading && (
 //               <div className="flex items-start space-x-2">
 //                 <FaRobot className="text-white bg-black rounded-full p-1" size={24} />
-//                 <p className="rounded-md max-w-[70%] text-black">
-//                   <BeatLoader size={8} />
-//                 </p>
+//                 <div className="rounded-md max-w-[70%] text-black">
+//                   <BeatLoader size={8} color="gray" />
+//                 </div>
 //               </div>
 //             )}
 //           </div>
 //         </div>
 
-//         {/* Input Box */}
 //         <div className="flex flex-col">
 //           <div className="flex items-center border px-3 py-2 bg-white rounded-md mt-2">
 //             <input
 //               type="text"
-//               placeholder={error ? error : "Ask about something medical..."}
-//               className={`border-none p-2 bg-white focus:outline-none focus:ring-0 w-full ${
-//                 error ? "placeholder-red-500" : ""
+//               placeholder={error || "Ask about something medical..."}
+//               className={`border-none p-2 bg-white focus:outline-none focus:ring-0 w-full placeholder-gray-500 ${
+//                 error ? "text-red-500 placeholder-red-500" : "text-black"
 //               }`}
 //               value={input}
 //               onChange={(e) => {
@@ -229,17 +317,25 @@
 //                 if (error) setError("");
 //               }}
 //               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+//               disabled={loading}
+//               aria-label="Type your message"
 //             />
 //             <div className="flex items-center gap-3">
-//               <VscSend
-//                 size={25}
-//                 className="hover:text-blue-500 transition-colors cursor-pointer"
+//               <button
 //                 onClick={handleSendMessage}
-//               />
-//               <RiMicLine
-//                 size={25}
+//                 disabled={loading}
 //                 className="hover:text-blue-500 transition-colors cursor-pointer"
-//               />
+//                 aria-label="Send message"
+//               >
+//                 <VscSend size={25} />
+//               </button>
+//               <button  onClick={handleVoiceRecognition}
+//                 className="hover:text-blue-500 transition-colors cursor-pointer"
+//                 aria-label="Use microphone"
+//                 disabled={isListening} 
+//               >
+//                 <RiMicLine size={25}  className={isListening ? "animate-pulse text-blue-500" : ""}/>
+//               </button>
 //             </div>
 //           </div>
 //         </div>
@@ -249,3 +345,5 @@
 // };
 
 // export default Chatbox;
+
+
