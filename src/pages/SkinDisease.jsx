@@ -13,6 +13,7 @@ const SkinDisease = () => {
   const [diseaseName, setDiseaseName] = useState("");
   const [resultImage, setResultImage] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [error, setError] = useState(""); // Add error state
   const [loading, setLoading] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -68,57 +69,105 @@ const SkinDisease = () => {
     try {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
-
+  
       const formData = new FormData();
       formData.append("file", blob, "image.png");
-
+  
       const result = await axios.post(`${backendUrl}/predict`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
-
       });
-      console.log("result:",result);
-      
-
+  
+      console.log("result:", result);
+  
       if (result.status !== 200) {
-        alert("Prediction failed");
+        setError("Prediction failed");
+        setResultImage(null); // Ensure the result card does not appear on error
         setLoading(false);
         return;
       }
-
+  
       const data = result.data;
       console.log(data);
-
-      setDiseaseName(data.predicted_class || "Unknown Disease");
-      console.log(data.predicted_class || "Unknown Disease");
-
-      setResultImage(imageUrl);
-      setImage(null);
+  
+      if (!data.predicted_class) {
+        setError("Upload a valid Skin image");
+        setResultImage(null);
+      } else {
+        setDiseaseName(data.predicted_class);
+        setResultImage(imageUrl);
+        setImage(null);
+      }
     } catch (error) {
       console.error("Error during prediction:", error);
-      alert("Error during prediction. Please try again.");
+      setError("Error during prediction. Please try again.");
+      setResultImage(null); // Ensure result card disappears on error
     } finally {
       setLoading(false);
     }
   };
+  
 
+  // const analyzeDisease = async (imageUrl) => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch(imageUrl);
+  //     const blob = await response.blob();
+
+  //     const formData = new FormData();
+  //     formData.append("file", blob, "image.png");
+
+  //     const result = await axios.post(`${backendUrl}/predict`, formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+
+  //     });
+  //     console.log("result:",result);
+      
+
+  //     if (result.status !== 200) {
+  //       setTimeout(() => setError("Prediction failed"), 2000);
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     const data = result.data;
+  //     console.log(data);
+
+  //     setDiseaseName(data.predicted_class|| setError('Upload a valid Skin image'));
+  //     console.log(data.predicted_class || "Unknown Disease");
+
+  //     setResultImage(imageUrl);
+  //     setImage(null);
+  //   } catch (error) {
+  //     console.error("Error during prediction:", error);
+  //     setTimeout(() => setError("Error during prediction. Please try again."), 2000);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+ 
+ 
+ 
   const handleKnowMoreButton = () => {
+    if (!diseaseName) {
 
-     // Generate an automatic question about the disease
-  const autoQuestion = `Explain about ${diseaseName}`;
-    navigate('/chatbot', { state: { diseaseName, autoQuestion } });
+      setTimeout(() => setError("Please upload an image and detect a disease first."), 2000);
+      return;
+    }
+    const autoQuestion = `Explain about ${diseaseName}`;
+    navigate('/medi-talk', { state: { diseaseName, autoQuestion } });
   };
   const resetUploadBox = () => {
     setImage(null);
-    setShowCamera(false);
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-    }
+    setResultImage(null);
+    setDiseaseName("");
+    setError("");
   };
+
 
   return (
     <div className="w-full min-h-screen bg-center bg-cover px-5 py-3 relative pb-24"  style={{ backgroundImage: `url(${backgroundImage})` }} >
       {/* Header */}
-      <Title name={'Skin Disease Detection'} />
+      <Title name={'Skin Sense'} />
       {/* Description */}
       <div className="px-4 md:px-24 text-center">
         <p className="text-lg text-white">
@@ -132,6 +181,13 @@ const SkinDisease = () => {
           <PropagateLoader color="black" />
         </div>
       )}
+      {error && (
+  <div className="p-3 flex justify-between bg-red-100/70 text-center border-l-4 border-red-500 text-red-700 rounded w-3/4 mt-3 mx-auto">
+<span className="">{error}</span>
+<button onClick={() => setError("")} className="ml-4 text-red-800 font-bold">✖</button>
+  </div>
+)}
+
 
       {/* Upload & Result Section */}
       <div className="flex flex-col md:flex-row justify-center gap-8 mt-5">
@@ -172,14 +228,14 @@ const SkinDisease = () => {
         </div>
 
         {/* Result Section */}
-        {resultImage && (
+        {resultImage && diseaseName && (
           <div className="w-full md:w-1/2 flex flex-col items-center">
             <h1 className="text-2xl text-cyan-400 font-semibold text-center">Disease Information</h1>
             <p className="mb-3 text-white text-center">Hover over the card to uncover more insights about this condition.</p>
             <div className="relative w-full max-w-md h-60 bg-gray-200 rounded-lg shadow-lg flex flex-col items-center justify-center group overflow-hidden">
               <div className="absolute inset-0 bg-cover bg-center opacity-50" style={{ backgroundImage: `url(${resultImage})` }}></div>
               <h3 className="relative text-xl font-bold text-white p-2 mb-3 bg-black/50 w-full text-center flex justify-center gap-2">
-                <FaDisease size={24} />{diseaseName}<FaDisease size={24} />
+             {diseaseName}
               </h3>
               {/* Hover Effect */}
                <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all ease-in-out duration-700"></div>

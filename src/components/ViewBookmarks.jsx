@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { FaTrash, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import Title from './Title';
@@ -5,6 +6,7 @@ import Title from './Title';
 const ViewBookmarks = () => {
   const [bookmarks, setBookmarks] = useState([]);
   const [expandedCard, setExpandedCard] = useState(null); // Track which card is expanded
+  const [visibleBookmarks, setVisibleBookmarks] = useState(5); // Show 5 bookmarks initially
 
   useEffect(() => {
     const savedBookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
@@ -12,12 +14,11 @@ const ViewBookmarks = () => {
   }, []);
 
   const handleDelete = (index, e) => {
-    e.stopPropagation(); // Prevent triggering card expansion when deleting
+    e.stopPropagation()
     const updatedBookmarks = bookmarks.filter((_, i) => i !== index);
     setBookmarks(updatedBookmarks);
     localStorage.setItem('bookmarks', JSON.stringify(updatedBookmarks));
-    
-    // Reset expanded card if the deleted card was expanded
+
     if (expandedCard === index) {
       setExpandedCard(null);
     }
@@ -25,6 +26,10 @@ const ViewBookmarks = () => {
 
   const toggleExpand = (index) => {
     setExpandedCard(expandedCard === index ? null : index);
+  };
+
+  const handleLoadMore = () => {
+    setVisibleBookmarks(prev => prev + 5); // Show 5 more bookmarks when "Load More" is clicked
   };
 
   return (
@@ -36,7 +41,7 @@ const ViewBookmarks = () => {
         {bookmarks.length === 0 ? (
           <h2 className="text-3xl text-cyan-950">No bookmarks yet!</h2>
         ) : (
-          bookmarks.map((drug, index) => (
+          bookmarks.slice(0, visibleBookmarks).map((drug, index) => (
             <div 
               key={index} 
               className="border p-4 rounded-md mb-4 bg-white cursor-pointer transition-all duration-200"
@@ -75,9 +80,16 @@ const ViewBookmarks = () => {
             </div>
           ))
         )}
+
+        {/* "Load More" button */}
+        {visibleBookmarks < bookmarks.length && (
+          <button onClick={handleLoadMore} className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded-md">
+            Load More
+          </button>
+        )}
       </div>
     </div>
   );
-}
+};
 
 export default ViewBookmarks;

@@ -29,51 +29,51 @@ const Sidebar = () => {
         <span className="ml-2">Home</span>
       </NavLink>
       <NavLink 
-        to="/chatbot" 
+        to="/medi-talk" 
         className={({ isActive }) => 
           `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
         }
       >
         <TbMessageChatbotFilled size={28} />
-        <span className="ml-2">Chatbot</span>
+        <span className="ml-2">MediTalk </span>
       </NavLink>
       <NavLink 
-        to="/skin-disease" 
+        to="/skin-sense" 
         className={({ isActive }) => 
           `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
         }
       >
         <FaStethoscope size={28} />
-        <span className="ml-2">Skin Disease</span>
+        <span className="ml-2">Skin Sense</span>
       </NavLink>
       <NavLink 
-        to="/eye-detection" 
+        to="/vision-check" 
         className={({ isActive }) => 
           `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
         }
       >
         <TbEyeSearch size={28} />
-        <span className="ml-2">Eye Detection</span>
+        <span className="ml-2">VisionCheck</span>
       </NavLink>
 
       <NavLink 
-        to="/xray-detection" 
+        to="/xray-insight" 
         className={({ isActive }) => 
           `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
         }
       >
         <FaXRay size={28} />
-        <span className="ml-2">X-Ray Detection</span>
+        <span className="ml-2">X-Ray Insight</span>
       </NavLink>
 
       <NavLink 
-        to="/drug-details" 
+        to="/drugInfo-hub" 
         className={({ isActive }) => 
           `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
         }
       >
         <FaPills size={28} />
-        <span className="ml-2">Drug Details</span>
+        <span className="ml-2">DrugInfo Hub</span>
       </NavLink>
       <NavLink 
         to="/medi-finder" 
@@ -86,13 +86,13 @@ const Sidebar = () => {
       </NavLink>
 
       <NavLink 
-        to="/bmi-calculator" 
+        to="/health-index" 
         className={({ isActive }) => 
           `flex items-center p-3 rounded-md transition duration-300 ${isActive ? 'bg-cyan-400' : 'hover:bg-cyan-400'}`
         }
       >
         <FaCalculator size={28} />
-        <span className="ml-2">BMI Calculator</span>
+        <span className="ml-2">Health Index</span>
       </NavLink>
  
      

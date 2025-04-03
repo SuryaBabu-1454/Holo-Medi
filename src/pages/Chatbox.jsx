@@ -27,7 +27,7 @@ const Chatbox = () => {
   const [sessionId, setSessionId] = useState(chatId || Date.now().toString());
   const [chatTitle, setChatTitle] = useState("");
   const autoQuestionProcessed = useRef(false);
-
+ 
 
 
   //Backend Port 
@@ -221,7 +221,7 @@ const handleVoiceRecognition = async () => {
       setSessionId(Date.now().toString());
       setChatTitle("");
       autoQuestionProcessed.current = false;
-      navigate("/chatbot", { state: { newChat: true } });
+      navigate("/medi-talk", { state: { newChat: true } });
     } catch (error) {
       console.error("Error starting new chat:", error);
       setError("Failed to start a new chat");
@@ -241,7 +241,7 @@ const handleVoiceRecognition = async () => {
 
   return (
     <div className="w-full min-h-screen bg-cover bg-center px-5 py-3 bg-gray-100 relative pb-24" style={{backgroundImage:`url(${backgroundImage})`}}>
-      <Title name={'Chatbot'} />
+      <Title name={'Medi Talk'} />
       <div className="flex flex-col mt-4 flex-grow bg-white w-full h-[450px] max-w-[550px] mx-auto p-3 rounded-md shadow-lg">
         <div className="flex justify-between items-center">
           <h3 className="mb-1 ms-2 text-start text-lg font-semibold">

@@ -57,7 +57,7 @@ const EyeDetection = () => {
 
   return (
     <div className="min-h-screen  p-5 flex bg-center bg-cover flex-col items-center relative" style={{backgroundImage:`url(${backgroundImage})`}}>
-      <Title name={'AI-Powered Eye Detection'} />
+      <Title name={'Vision Check'} />
       <p className="text-xl text-white mb-5">"Your eye health in focus — detect diseases and understand prediction accuracy in just a few clicks."</p>
 
       <div className={`rounded-lg  shadow-lg max-w-md w-full relative ${loading ? 'pointer-events-none' : ''}`}>

@@ -77,7 +77,7 @@ const  BMICalculator = () => {
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       {/* Header */}
-      <Title name={"BMI Calculator"} />
+      <Title name={"Health Index"} />
 
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center">

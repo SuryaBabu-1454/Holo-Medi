@@ -6,21 +6,28 @@ import ProgressBar from "../components/ProgressBar";
 import axios from "axios";
 import backgroundImage from "../assets/background/x4.jpg";
 
-const XRayDetection = ({ name }) => {
+const XRayDetection = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [tableData, setTableData] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
-
-  
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
+  // Backend API URL (must be defined in .env file as VITE_XRAY_BACKEND_URL)
+  const backendUrl = import.meta.env.VITE_XRAY_BACKEND;
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
+
     if (file) {
+      // File type validation
+      if (!file.type.startsWith("image/")) {
+        setErrorMessage("Invalid file type. Please upload an image.");
+        return;
+      }
+
       setSelectedFile(file);
       setIsAnalyzing(true);
+      setErrorMessage("");
 
       const formData = new FormData();
       formData.append("image", file);
@@ -32,9 +39,15 @@ const XRayDetection = ({ name }) => {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        setTableData(response.data.table); // Store only the table data
+        if (response.data && response.data.table) {
+          setTableData(response.data.table);
+        } else {
+          setTableData("No analysis data received.");
+        }
       } catch (error) {
         console.error("Error uploading file:", error);
+        setTableData(null);
+        setErrorMessage("Error analyzing X-ray. Please try again.");
       } finally {
         setIsAnalyzing(false);
       }
@@ -45,6 +58,7 @@ const XRayDetection = ({ name }) => {
     setSelectedFile(null);
     setIsAnalyzing(false);
     setTableData(null);
+    setErrorMessage("");
   };
 
   return (
@@ -52,12 +66,14 @@ const XRayDetection = ({ name }) => {
       className="relative py-3 px-5 bg-cover bg-center w-full min-h-screen"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <Title name={"XRay Detection"} />
+      <Title name="X-Ray Insight" />
       <div className="relative flex justify-center items-center h-full mt-10">
         {!selectedFile ? (
           <label className="flex flex-col items-center cursor-pointer w-11/12 sm:w-8/12 md:w-8/12 lg:w-8/12 h-40 justify-center border-2 border-dashed p-5 text-center bg-cyan-50/60 text-gray-500 rounded-lg">
             <IoCloudUploadOutline size={60} className="text-gray-500 mb-2" />
-            <p className="text-sm sm:text-base">Drag and drop an image here, or click to <b>browse a file</b></p>
+            <p className="text-sm sm:text-base">
+              Drag and drop an image here, or click to <b>browse a file</b>
+            </p>
             <input id="fileInput" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
           </label>
         ) : (
@@ -71,10 +87,12 @@ const XRayDetection = ({ name }) => {
             ) : (
               <div className="mt-4 text-center">
                 <h1 className="text-xl sm:text-2xl mb-2 text-cyan-700 underline">X-Ray Information</h1>
-                {tableData ? (
+                {errorMessage ? (
+                  <p className="text-sm sm:text-base text-red-600">{errorMessage}</p>
+                ) : tableData ? (
                   <p className="text-sm sm:text-base">{tableData}</p>
                 ) : (
-                  <p className="text-sm sm:text-base">No table data available.</p>
+                  <p className="text-sm sm:text-base text-gray-600">Upload an X-ray to analyze.</p>
                 )}
               </div>
             )}
@@ -86,4 +104,3 @@ const XRayDetection = ({ name }) => {
 };
 
 export default XRayDetection;
-

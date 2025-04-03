@@ -6,7 +6,7 @@ import Title from '../components/Title';
 import ProgressBar from '../components/ProgressBar';
 import backgroundImage from '../assets/background/d4.jpg';
 
-const API_BASE = 'http://192.168.1.155:5000';
+const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
 const DrugDetails = () => {
   const location = useLocation();
@@ -18,11 +18,12 @@ const DrugDetails = () => {
   const [message, setMessage] = useState('');
   const [isDetecting, setIsDetecting] = useState(false);
 
-
+  // Ensure bookmarks is always an array
   const [bookmarks, setBookmarks] = useState(() => {
-    return JSON.parse(localStorage.getItem('bookmarks')) || [];
+    const localBookmarks = JSON.parse(localStorage.getItem('bookmarks'));
+    return Array.isArray(localBookmarks) ? localBookmarks : [];
   });
-  
+
   // 1. Fetch bookmarks from backend
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -30,7 +31,8 @@ const DrugDetails = () => {
         const response = await fetch(`${API_BASE}/bookmarks`);
         if (response.ok) {
           const data = await response.json();
-          setBookmarks(data);
+          // Ensure fetched bookmarks are an array
+          setBookmarks(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         console.error("Failed to fetch bookmarks:", err);
@@ -94,30 +96,29 @@ const DrugDetails = () => {
     }
   };
 
-
   const handleBookmark = () => {
     if (!drugInfo) return;
-    
+  
     const newBookmark = {
       ...drugInfo,
       timestamp: new Date().toLocaleString()
     };
-    
-    const isBookmarked = bookmarks.some(b => b.name === drugInfo.name);
-    
+  
+    const existingBookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+    const isBookmarked = existingBookmarks.some(b => b.name === drugInfo.name);
+  
     if (isBookmarked) {
       setMessage('This drug is already bookmarked!');
     } else {
-      const updatedBookmarks = [...bookmarks, newBookmark];
-      setBookmarks(updatedBookmarks);
+      const updatedBookmarks = [ newBookmark, ...existingBookmarks];
       localStorage.setItem('bookmarks', JSON.stringify(updatedBookmarks));
+      setBookmarks(updatedBookmarks);
       setMessage('Bookmark added!');
     }
-    
-    setTimeout(() => setMessage(''), 3000);
+    setTimeout(() => setMessage(''), 2000);
   };
-
-
+  
+  
 
   const handleInputChange = (e) => {
     setDrugName(e.target.value);
@@ -141,15 +142,15 @@ const DrugDetails = () => {
 
   const handleExportPDF = () => {
     if (!drugInfo) return;
-    
+
     const doc = new jsPDF();
-    
+
     // Page dimensions and settings
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const margin = 20;
     const contentWidth = pageWidth - (margin * 2);
-  
+
     // Add watermark
     doc.setFontSize(60);
     doc.setTextColor(230, 230, 230);
@@ -159,53 +160,51 @@ const DrugDetails = () => {
       angle: 45
     });
     doc.setTextColor(0, 0, 0);
-  
+
     // Add page border
     doc.setDrawColor(150, 150, 150); // Light gray border
     doc.setLineWidth(0.5);
     doc.rect(margin - 5, margin - 5, pageWidth - (margin * 2) + 10, pageHeight - (margin * 2) + 10);
-  
+
     // Add title
     doc.setFontSize(18);
     doc.setFont(undefined, 'bold');
     doc.text(formatDrugName(drugInfo.name), pageWidth / 2, margin + 20, { 
       align: 'center' 
     });
-  
+
     // Add description
     doc.setFontSize(14);
     doc.setFont(undefined, 'bold');
     doc.text('Description:', margin, margin + 40);
-  
+
     doc.setFontSize(12);
     doc.setFont(undefined, 'normal');
     const splitDescription = doc.splitTextToSize(drugInfo.description, contentWidth);
     doc.text(splitDescription, margin, margin + 50);
-  
+
     // Calculate dynamic positioning
     const descHeight = splitDescription.length * 6;
     let currentY = margin + 50 + descHeight;
-  
+
     // Add Thank You message
     doc.setFontSize(14);
     doc.setFont(undefined, 'italic');
     doc.text('Thank you for using our service.', pageWidth / 2, currentY + 20, {
       align: 'center'
     });
-  
+
     // Add Author name (right aligned after Thank You)
     doc.setFontSize(12);
     doc.setFont(undefined, 'normal');
     doc.text('Author: MedFinder Team', pageWidth - margin, currentY + 40, {
       align: 'right'
     });
-  
-    // Save the PDF
+
+
     doc.save(`${formatDrugName(drugInfo.name)}_Report.pdf`);
   };
-  const handleViewBookmarks = () => {
-    navigate('/bookmarks', { state: { fromBookmarks: true } });
-  };
+
   const formatDrugName = (name) => {
     if (!name) return '';
     return name.toLowerCase().split(' ').map(word => 
@@ -213,6 +212,10 @@ const DrugDetails = () => {
     ).join(' ');
   };
 
+  const handleViewBookmarks = () => {
+   
+    navigate("/bookmarks");  
+  };
 
   const handleKnowMore = () => {
     if (drugInfo?.url) {
@@ -226,7 +229,7 @@ const DrugDetails = () => {
 
   return (
     <div className="min-h-screen bg-cover bg-center w-full px-4 py-3 flex flex-col items-center" style={{ backgroundImage: `url(${backgroundImage})` }}>
-      <Title name={'Drug Details'} />
+      <Title name={'DrugInfo Hub'} />
       <div className="flex flex-col mt-10 sm:flex-row items-center w-full max-w-xl space-y-4 sm:space-y-0 sm:space-x-4">
         <div className="relative w-full sm:w-[450px]">
           <input

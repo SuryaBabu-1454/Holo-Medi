@@ -32,11 +32,11 @@ const HistoryPage = () => {
   };
 
   const handleSelectChat = (chatId) => {
-    navigate("/chatbot", { state: { chatId, continueSession: true } });
+    navigate("/medi-talk", { state: { chatId, continueSession: true } });
   };
 
   const handleNewChat = () => {
-    navigate("/chatbot", { state: { newChat: true } });
+    navigate("/medi-talk", { state: { newChat: true } });
   };
 
   return (

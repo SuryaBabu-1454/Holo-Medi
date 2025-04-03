@@ -29,14 +29,14 @@ const App = () => {
         <div className="flex-1 h-full">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/skin-disease" element={<SkinDisease />} />
-            <Route path="/xray-detection" element={<XRayDetection />} />
-            <Route path="/drug-details" element={<DrugDetails />} />
-            <Route path="/bmi-calculator" element={<BMICalculator />} />
-            <Route path="/chatbot" element={<Chatbox />} />
+            <Route path="/skin-sense" element={<SkinDisease />} />
+            <Route path="/xray-insight" element={<XRayDetection />} />
+            <Route path="/drugInfo-hub" element={<DrugDetails />} />
+            <Route path="/health-index" element={<BMICalculator />} />
+            <Route path="medi-talk" element={<Chatbox />} />
             <Route path="/bookmarks" element={<ViewBookmarks />} />
             <Route path="/history" element={<HistoryPage />} />
-            <Route path="/eye-detection" element={<EyeDetection />} />
+            <Route path="/vision-check" element={<EyeDetection />} />
             <Route path="/medi-finder" element={<MediFinder />} />
           </Routes>
         </div>
